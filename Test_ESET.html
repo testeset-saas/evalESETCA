@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examen de Certificación ESET - 30 Preguntas</title>
+    <style>
+        :root {
+            --eset-blue: #00a1df;
+            --eset-dark: #222;
+            --success: #28a745;
+            --danger: #dc3545;
+        }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7f9; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        .header { text-align: center; border-bottom: 3px solid var(--eset-blue); margin-bottom: 30px; padding-bottom: 10px; }
+        .score-box { 
+            position: sticky; top: 10px; display: none; padding: 20px; 
+            border-radius: 8px; text-align: center; font-size: 1.4rem; font-weight: bold; 
+            z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .q-block { background: #fafafa; border: 1px solid #eee; padding: 20px; margin-bottom: 20px; border-radius: 8px; }
+        .q-text { font-weight: bold; margin-bottom: 15px; display: block; }
+        .option { display: block; padding: 10px; margin: 5px 0; cursor: pointer; border-radius: 4px; border: 1px solid transparent; }
+        .option:hover { background: #eef9ff; border-color: var(--eset-blue); }
+        input[type="radio"] { margin-right: 10px; }
+        .btn-check { 
+            display: block; width: 100%; padding: 20px; background: var(--eset-blue); 
+            color: white; border: none; border-radius: 8px; font-size: 1.2rem; cursor: pointer; font-weight: bold;
+        }
+        .btn-check:hover { background: #008cc2; }
+        .correct { background: #d4edda !important; border-left: 5px solid var(--success); }
+        .incorrect { background: #f8d7da !important; border-left: 5px solid var(--danger); }
+        .feedback-text { display: none; font-size: 0.9rem; margin-top: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div id="resultBanner" class="score-box"></div>
+
+<div class="container">
+    <div class="header">
+        <h1>Evaluación Integral de Soluciones ESET</h1>
+        <p>Bundles, Tecnologías, Implementación e Integraciones</p>
+    </div>
+
+    <form id="quizForm">
+        <div id="questionsWrapper"></div>
+        <button type="button" class="btn-check" onclick="calculateExam()">Finalizar Evaluación</button>
+    </form>
+</div>
+
+<script>
+    const questions = [
+        // Mezcla de las 10 avanzadas previas
+        { q: "¿Qué diferencia técnica fundamental existe entre ESET Protect Advanced y ESET Protect Complete?", a: "b", options: {a: "Advanced no incluye consola", b: "Complete añade protección M365 y seguridad de correo", c: "Advanced es solo local", d: "Complete incluye XDR por defecto"} },
+        { q: "¿En una arquitectura Zero Trust, qué componente es vital para el control de acceso a la consola?", a: "b", options: {a: "LiveGuard", b: "ESET Secure Authentication (MFA)", c: "FDE", d: "HIPS"} },
+        { q: "¿Para una entidad financiera que requiere forensia y caza de amenazas, qué bundle es el adecuado?", a: "c", options: {a: "Protect Entry", b: "Protect Complete", c: "Protect Enterprise (incluye XDR)", d: "Protect MDR"} },
+        { q: "¿Cómo actúa ESET LiveGuard Advanced ante un archivo desconocido?", a: "b", options: {a: "Lo bloquea localmente", b: "Lo ejecuta en sandboxing en la nube", c: "Lo borra", d: "Lo envía a Syslog"} },
+        { q: "¿Método de gestión recomendado para 5,000 equipos distribuidos sin VPN?", a: "c", options: {a: "Consola On-Premise", b: "Manual", c: "ESET PROTECT Cloud", d: "Active Directory"} },
+        { q: "¿Qué bundle se requiere si el cliente usa Exchange On-Premise y quiere proteger buzones?", a: "b", options: {a: "Advanced", b: "Complete", c: "Entry", d: "Hub"} },
+        { q: "¿Propósito de ESET Bridge en una red de gran escala?", a: "a", options: {a: "Proxy HTTP para caché de actualizaciones", b: "Conectar SQL con la consola", c: "Gestión móvil", d: "Firewall físico"} },
+        { q: "¿Qué tecnología cumple con normativas de protección de datos (GDPR) ante pérdida de hardware?", a: "b", options: {a: "LiveGuard", b: "ESET Full Disk Encryption", c: "Patch Management", d: "HIPS"} },
+        { q: "¿Qué permite la integración con un SIEM externo?", a: "b", options: {a: "Instalar agentes", b: "Exportar logs vía Syslog", c: "Duplicar la consola", d: "No es posible"} },
+        { q: "¿Qué funcionalidad evita el uso de USBs no autorizados?", a: "c", options: {a: "Web Control", b: "Firewall", c: "Device Control", d: "HIPS"} },
+        
+        // 10 Preguntas Nuevas (Avanzadas e Integraciones)
+        { q: "¿Cómo se gestiona el módulo de Vulnerability & Patch Management en ESET PROTECT?", a: "a", options: {a: "Desde una pestaña dedicada para inventario y despliegue de parches", b: "Manual por equipo", c: "Solo mediante comandos PowerShell", d: "Es un software externo"} },
+        { q: "¿Qué puerto por defecto utiliza el Agente de ESET para comunicarse con la consola?", a: "b", options: {a: "443", b: "2222", c: "8080", d: "2223"} },
+        { q: "¿Cuál es la función del 'Dynamic Group' en ESET PROTECT?", a: "c", options: {a: "Agrupar equipos por marca", b: "Instalar actualizaciones", c: "Automatizar tareas según condiciones del equipo (ej. SO, amenazas)", d: "Solo lectura"} },
+        { q: "¿En Azure Marketplace, qué ventaja ofrece la imagen preconfigurada de ESET?", a: "a", options: {a: "Despliegue rápido de la consola On-Premise en la nube", b: "Es gratuita", c: "No requiere base de datos", d: "Incluye las licencias"} },
+        { q: "¿Qué es ESET Inspect?", a: "d", options: {a: "Un antivirus básico", b: "El nombre de la consola cloud", c: "Un firewall", d: "La herramienta XDR para detección y respuesta avanzada"} },
+        { q: "¿Cuál es el rol de ESET LiveGrid?", a: "b", options: {a: "Cifrado de archivos", b: "Sistema de reputación basado en la nube", c: "Gestión de parches", d: "Limpieza de virus"} },
+        { q: "¿Qué sucede si una política en ESET PROTECT entra en conflicto con otra?", a: "c", options: {a: "El equipo se bloquea", b: "Se aplica la más antigua", c: "Se aplica según el orden de jerarquía y grupos", d: "Se anulan entre sí"} },
+        { q: "¿Qué componente de ESET protege contra Ransomware específicamente analizando la memoria?", a: "a", options: {a: "HIPS / Ransomware Shield", b: "Firewall", c: "Web Control", d: "Syslog"} },
+        { q: "¿Cómo se activa ESET Full Disk Encryption en un endpoint?", a: "b", options: {a: "Físicamente en el equipo", b: "Mediante una tarea de activación desde la consola", c: "Con un CD de instalación", d: "Vía BIOS"} },
+        { q: "¿Qué bundle integra protección específica para SharePoint?", a: "b", options: {a: "Entry", b: "Complete", c: "Advanced", d: "Enterprise"} },
+
+        // 10 Preguntas Relevantes de las 30 Iniciales
+        { q: "¿Qué bundle incluye por defecto ESET Secure Authentication?", a: "c", options: {a: "Entry", b: "Advanced", c: "Complete", d: "Essential"} },
+        { q: "¿Cuál es el objetivo principal de ESET HIPS?", a: "b", options: {a: "Filtrado Web", b: "Control de comportamiento y prevención de intrusiones", c: "Backup", d: "Antispam"} },
+        { q: "¿Qué plataforma centraliza la gestión de múltiples endpoints?", a: "a", options: {a: "ESET PROTECT", b: "Cloud Office", c: "Syslog Server", d: "Azure Portal"} },
+        { q: "¿Cómo se realiza un escaneo bajo demanda remotamente?", a: "a", options: {a: "Desde la consola enviando una tarea", b: "Por teléfono", c: "Solo localmente", d: "Vía correo"} },
+        { q: "¿Qué bundle se recomienda para una PyME que solo busca protección básica de endpoint?", a: "a", options: {a: "ESET Protect Entry", b: "Enterprise", c: "Inspect", d: "MDR"} },
+        { q: "¿Cuál es la función de ESET Cloud Office Security?", a: "c", options: {a: "Cifrar discos", b: "Gestión de red", c: "Protección de correo y almacenamiento en M365/Google", d: "Antivirus local"} },
+        { q: "¿Cómo se integra ESET con Active Directory para sincronizar equipos?", a: "c", options: {a: "No se puede", b: "Manual", c: "Vía Tarea de Sincronización de Grupos Estáticos", d: "Vía USB"} },
+        { q: "¿Qué ventaja tiene el instalador 'Todo-en-uno'?", a: "b", options: {a: "Pesa menos", b: "Incluye el agente y el producto de seguridad preconfigurados", c: "No requiere licencia", d: "Es solo para servidores"} },
+        { q: "¿Qué es ESET LiveGuard Advanced?", a: "c", options: {a: "Un firewall", b: "Un MFA", c: "Sandboxing en la nube para detección de 0-day", d: "Un VPN"} },
+        { q: "¿Para entornos híbridos, qué bundle ofrece la mayor escalabilidad?", a: "b", options: {a: "Entry", b: "ESET Protect Enterprise", c: "NOD32", d: "Full Disk Encryption"} }
+    ];
+
+    const wrapper = document.getElementById('questionsWrapper');
+
+    questions.forEach((item, i) => {
+        let opts = '';
+        for (const [key, val] of Object.entries(item.options)) {
+            opts += `
+                <label class="option" id="label-q${i}-${key}">
+                    <input type="radio" name="q${i}" value="${key}">
+                    ${key.toUpperCase()}) ${val}
+                </label>`;
+        }
+        wrapper.innerHTML += `
+            <div class="q-block" id="block${i}">
+                <span class="q-text">${i + 1}. ${item.q}</span>
+                ${opts}
+                <div class="feedback-text" id="fb${i}">Correcta: ${item.a.toUpperCase()}</div>
+            </div>`;
+    });
+
+    function calculateExam() {
+        let score = 0;
+        questions.forEach((item, i) => {
+            const selected = document.querySelector(`input[name="q${i}"]:checked`);
+            const block = document.getElementById(`block${i}`);
+            const fb = document.getElementById(`fb${i}`);
+            
+            fb.style.display = "block";
+            
+            if (selected && selected.value === item.a) {
+                score++;
+                block.className = "q-block correct";
+            } else {
+                block.className = "q-block incorrect";
+            }
+        });
+
+        const finalGrade = ((score / questions.length) * 10).toFixed(1);
+        const banner = document.getElementById('resultBanner');
+        
+        banner.style.display = "block";
+        banner.style.background = finalGrade >= 7.5 ? "#28a745" : "#dc3545";
+        banner.style.color = "white";
+        banner.innerHTML = `CALIFICACIÓN: ${finalGrade} / 10 <br> <small>Respondiste bien ${score} de 30 preguntas</small>`;
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
+</body>
+</html>
